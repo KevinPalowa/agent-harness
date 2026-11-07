@@ -1,0 +1,13 @@
+# secrets
+auth.json
+# caches / fetched catalog
+models-store.json
+# binaries and the pi installation itself
+bin/
+install/
+# conversation history (large, changes every turn)
+sessions/
+# misc
+node_modules/
+*.log
+.DS_Store
