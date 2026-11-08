@@ -24,6 +24,9 @@ import type { Component, EditorTheme, TUI } from "@earendil-works/pi-tui";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 
 const MODE_CHANNEL = "ui-mode";
+const AGENT_MODE_CHANNEL = "agent-mode";
+
+type AgentMode = "build" | "plan" | "execute";
 
 function formatCwd(cwd: string): string {
 	const home = process.env.HOME;
@@ -80,6 +83,7 @@ class OpenCodeEditor extends CustomEditor {
 		private readonly currentTheme: () => Theme,
 		private readonly ctx: ExtensionContext,
 		private readonly thinkingLevel: () => string,
+		private readonly agentMode: () => AgentMode,
 	) {
 		super(tui, editorTheme, keybindings, { paddingX: 2 });
 		this.borderColor = (text) => currentTheme().fg("borderMuted", text);
@@ -94,8 +98,11 @@ class OpenCodeEditor extends CustomEditor {
 		const theme = this.currentTheme();
 		const model = this.ctx.model?.id ?? "no-model";
 		const thinking = this.thinkingLevel();
+		const mode = this.agentMode();
+		const label = mode === "plan" ? "Plan" : mode === "execute" ? "Execute" : "Build";
+		const modeColor = mode === "plan" ? "warning" : mode === "execute" ? "success" : "accent";
 		const left =
-			`${theme.fg("accent", "Build")} ${theme.fg("borderMuted", "·")} ${theme.fg("text", model)}` +
+			`${theme.fg(modeColor, label)} ${theme.fg("borderMuted", "·")} ${theme.fg("text", model)}` +
 			(thinking === "off" ? "" : `${theme.fg("borderMuted", " · ")}${theme.fg("muted", thinking)}`);
 		const right = theme.fg("muted", contextLabel(this.ctx));
 		const status = fitStatus(left, right, width);
@@ -128,6 +135,7 @@ class OpenCodeEditor extends CustomEditor {
 
 export default function (pi: ExtensionAPI): void {
 	let enabled = false;
+	let agentMode: AgentMode = "build";
 
 	function enable(ctx: ExtensionContext): void {
 		if (!ctx.hasUI) return;
@@ -135,7 +143,15 @@ export default function (pi: ExtensionAPI): void {
 		ctx.ui.setFooter(() => new EmptyFooter());
 		ctx.ui.setEditorComponent(
 			(tui, theme, keybindings) =>
-				new OpenCodeEditor(tui, theme, keybindings, () => ctx.ui.theme, ctx, () => pi.getThinkingLevel()),
+				new OpenCodeEditor(
+					tui,
+					theme,
+					keybindings,
+					() => ctx.ui.theme,
+					ctx,
+					() => pi.getThinkingLevel(),
+					() => agentMode,
+				),
 		);
 		enabled = true;
 		pi.events.emit(MODE_CHANNEL, { mode: "opencode" });
@@ -171,6 +187,11 @@ export default function (pi: ExtensionAPI): void {
 				ctx.ui.notify("OpenCode UI enabled", "info");
 			}
 		},
+	});
+
+	pi.events.on(AGENT_MODE_CHANNEL, (data) => {
+		const mode = (data as { mode?: string } | undefined)?.mode;
+		if (mode === "build" || mode === "plan" || mode === "execute") agentMode = mode;
 	});
 
 	pi.on("session_start", async (_event, ctx) => {
