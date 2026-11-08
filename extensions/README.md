@@ -2,7 +2,7 @@
 
 | Extension | What it does | Controls |
 |---|---|---|
-| `opencode-ui.ts` | OpenCode-style header, left-border prompt, and status row; hides the footer | `/opencode-ui`, `--opencode-ui`, `--no-opencode-ui` |
+| `opencode-ui.ts` | OpenCode-style header, left-border prompt, and status row with live Build/Plan/Execute mode | `/opencode-ui`, `--no-opencode-ui` |
 | `plan-mode/` | Read-only planning mode, todo tracking, execution handoff | `/plan`, `Shift+Tab`, `--plan`, `/todos` |
 | `git-checkpoint.ts` | Stash per turn; `/fork` offers code restore | automatic |
 | `ui.ts` | Custom footer (model, thinking, context bar, tokens, cost, branch) + title spinner | `/ui`, `--no-ui` |
