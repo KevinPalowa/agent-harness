@@ -6,6 +6,7 @@ mcp-auth.json
 # machine trust / local state
 trust.json
 models-store.json
+crashes.json
 tmp/
 # binaries and the pi installation itself
 bin/

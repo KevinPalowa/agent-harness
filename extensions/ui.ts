@@ -55,6 +55,8 @@ function tokenTotals(ctx: ExtensionContext): { input: number; output: number; co
 
 export default function (pi: ExtensionAPI): void {
 	let footerEnabled = true;
+	let opencodeMode = false;
+	let activeCtx: ExtensionContext | undefined;
 	let spinnerTimer: ReturnType<typeof setInterval> | undefined;
 	let spinnerFrame = 0;
 	let titleCtx: ExtensionContext | undefined;
@@ -169,6 +171,10 @@ export default function (pi: ExtensionAPI): void {
 	pi.registerCommand("ui", {
 		description: "Toggle the custom status bar",
 		handler: async (_args, ctx) => {
+			if (opencodeMode) {
+				ctx.ui.notify("OpenCode UI owns the footer; run /opencode-ui to switch back", "info");
+				return;
+			}
 			footerEnabled = !footerEnabled;
 			if (footerEnabled) {
 				installFooter(ctx);
@@ -180,15 +186,25 @@ export default function (pi: ExtensionAPI): void {
 		},
 	});
 
+	// The OpenCode-style extension drives the whole bottom chrome. Keep the
+	// custom footer out of its way, and restore it when OpenCode UI is off.
+	pi.events.on("ui-mode", (data) => {
+		const mode = (data as { mode?: string } | undefined)?.mode;
+		opencodeMode = mode === "opencode";
+		if (opencodeMode) return;
+		if (footerEnabled && activeCtx) installFooter(activeCtx);
+	});
+
 	pi.on("session_start", async (_event, ctx) => {
+		activeCtx = ctx;
 		if (!ctx.hasUI) return;
 		if (pi.getFlag("no-ui") === true) footerEnabled = false;
-		if (footerEnabled) installFooter(ctx);
+		if (footerEnabled && !opencodeMode) installFooter(ctx);
 		ctx.ui.setTitle(baseTitle(ctx));
 	});
 
 	pi.on("model_select", async (_event, ctx) => {
-		if (ctx.hasUI && footerEnabled) installFooter(ctx);
+		if (ctx.hasUI && footerEnabled && !opencodeMode) installFooter(ctx);
 	});
 
 	pi.on("thinking_level_select", async () => {
@@ -205,5 +221,7 @@ export default function (pi: ExtensionAPI): void {
 
 	pi.on("session_shutdown", async () => {
 		stopSpinner();
+		activeCtx = undefined;
+		opencodeMode = false;
 	});
 }
