@@ -3,5 +3,6 @@
   "defaultProvider": "opencode-go",
   "defaultModel": "deepseek-v4.1-flash",
   "defaultThinkingLevel": "low",
+  "theme": "opencode-light/opencode",
   "hideThinkingBlock": false
 }

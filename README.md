@@ -13,6 +13,7 @@ the Pi installation itself stay machine-local and ignored.
 |---|---|
 | `settings.json` | Default provider/model/thinking level and other preferences |
 | `keybindings.json` | Custom TUI keybindings |
+| `themes/` | OpenCode-inspired dark/light themes (`opencode`, `opencode-light`) |
 | `extensions/` | Local Pi extensions (see `extensions/README.md`) |
 | `bootstrap.sh` | Copies this setup into `~/.pi/agent` without touching runtime state |
 | `.gitignore` | Keeps credentials, sessions, installs, and caches out of git |
