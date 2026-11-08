@@ -44,11 +44,6 @@ pi
 # inside Pi: /reload  (if Pi was already running)
 ```
 
-The default UI is OpenCode-inspired: `opencode-ui.ts` replaces the header, draws a
-left-accent prompt, and shows `Build · model · context` under the prompt. Toggle it
-with `/opencode-ui`; disable at startup with `--no-opencode-ui`, or restore the
-built-in UI with `--no-ui`.
-
 The script backs up existing `settings.json`, `keybindings.json`, and
 `extensions/` with a `.backup-<timestamp>` suffix before replacing them. It only
 touches files tracked by this repo; `install/`, `bin/`, `sessions/`, and

@@ -57,9 +57,6 @@ export default function planModeExtension(pi: ExtensionAPI): void {
 	});
 
 	function updateStatus(ctx: ExtensionContext): void {
-		const mode = executionMode ? "execute" : planModeEnabled ? "plan" : "build";
-		pi.events.emit("agent-mode", { mode });
-
 		// Footer status
 		if (executionMode && todoItems.length > 0) {
 			const completed = todoItems.filter((t) => t.completed).length;
